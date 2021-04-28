@@ -15,10 +15,10 @@ public class playerprefz : MonoBehaviour
     public const string STR_CHPNO = "STR_CHPNO";
     public const string STR_Grenade = "STR_Grenade";
     public const string STR_Healthkit = "STR_Healthkit";
-    public const string STR_Skin = "STR_Skin";
+    public const string STR_WeaponType = "STR_WeaponType";
     public const string STR_CurrentGun = "STR_CRNTGUN";
     public const string STR_GUN = "STR_GUN";
-    public const string STR_CurrentSkin = "STR_CurrentSkin";
+    public const string STR_CurrentWeaponType = "STR_CurrentWeaponType";
     public const string STR_GunUpdateNo = "STR_GunUpdateNo";
     public const string STR_Sensitivity = "STR_Sensitivity";
     public const string STR_AutoSHoot = "STR_AutoSHoot";
@@ -63,54 +63,54 @@ public class playerprefz : MonoBehaviour
     /// Strings For Cash And Rewards
     /// </summary>
     public const string CASH_TOTAL = "CASH_TOTAL";
+    public const string COIN_TOTAL = "COIN_TOTAL";
     public const string CASH_LEVELREWARD = "CASH_LEVELREWARD";
 
-
-
-
-    public static void setSkinPurchased(int SkinNo, int guntype)
+    public static void SetCurrentWeaponCategory(int weapontype)
     {
-        PlayerPrefs.SetInt(STR_Skin + SkinNo + guntype, 1);
-        PlayerPrefs.SetInt(STR_CurrentSkin + guntype, SkinNo);
+         PlayerPrefs.SetInt(STR_CurrentWeaponType, weapontype);
 
     }
-    public static int getSkinPurchased(int SkinNo, int guntype)
+
+    public static int getCurrentWeaponCategory()
     {
-        return PlayerPrefs.GetInt(STR_Skin + SkinNo + guntype, 0);
-    }
-    public static int getCurrentSkin(int guntype)
-    {
-        return PlayerPrefs.GetInt(STR_CurrentSkin + guntype, 0);
+        return PlayerPrefs.GetInt(STR_CurrentWeaponType, 0);
     }
 
     public static void setGunPurchased(int GunNo)
     {
-        PlayerPrefs.SetInt(STR_GUN + GunNo, 1);
+        PlayerPrefs.SetInt(STR_GUN+getCurrentWeaponCategory() + GunNo, 1);
         setCurrentGun(GunNo);
         //PlayerPrefs.SetInt;
 
     }
+    //public static void GiftFirstWeaponsEachCategory()
+    //{
+    //    for (int i = 0; i < 5; i++)
+    //    {
+
+    //        PlayerPrefs.SetInt(STR_GUN + i + 0, 1);
+    //    }
+    //}
     public static int getGunPurchased(int GunNo)
     {
-        return PlayerPrefs.GetInt(STR_GUN + GunNo, 0);
+        if(GunNo == 0)
+        {
+            return  1;
+        }
+        else
+        return PlayerPrefs.GetInt(STR_GUN + getCurrentWeaponCategory() + GunNo, 0);
     }
     public static void setCurrentGun(int GunNo)
     {
-        PlayerPrefs.SetInt(STR_CurrentGun, GunNo);
+        PlayerPrefs.SetInt(STR_CurrentGun + getCurrentWeaponCategory(), GunNo);
         //PlayerPrefs.SetInt;
 
     }
     public static int getCurrentGun()
     {
-        return PlayerPrefs.GetInt(STR_CurrentGun, 0);
+        return PlayerPrefs.GetInt(STR_CurrentGun + getCurrentWeaponCategory(), 0);
     }
-    public static void SetCurrentSkin(int CurrentSkin, int guntype)
-    {
-        //PlayerPrefs.SetInt(STR_CurrentSkin + CurrentSkin + guntype, CurrentSkin);
-        PlayerPrefs.SetInt(STR_CurrentSkin + guntype, CurrentSkin);
-
-    }
-
 
     public static void setCurrentLevel(int i)
     {
@@ -150,7 +150,7 @@ public class playerprefz : MonoBehaviour
     }
     public static int getUnlockedLevel(int _CurrentMode)
     {
-        return PlayerPrefs.GetInt(LVL_Unlocked+_CurrentMode, 0);
+        return PlayerPrefs.GetInt(LVL_Unlocked+_CurrentMode, 1);
     }
 
     public static void SetWatchUnlockMode(int no)
@@ -190,6 +190,11 @@ public class playerprefz : MonoBehaviour
     }
     public static int getUnlockedMode(int _CurrentMode)
     {
+        if (_CurrentMode == 0)
+        {
+            return 1;
+        }
+        else
         return PlayerPrefs.GetInt(MODE_Unlocked + _CurrentMode, 0);
     }
     public static void setCurrentMode(int i)
@@ -202,6 +207,7 @@ public class playerprefz : MonoBehaviour
         return PlayerPrefs.GetInt(MODE_Current, 0);
     }
 
+    // ***************************** Staring Cash methods **************************
     public static void AddinTotalCash(int Cash)
     {
         PlayerPrefs.SetInt(CASH_TOTAL, getTotalCash + Cash);
@@ -221,12 +227,27 @@ public class playerprefz : MonoBehaviour
         }
     }
 
-    //public static void SetLevelReward(int Cash)
-    //{
-    //    PlayerPrefs.SetInt(CASH_LEVELREWARD, getLevelReward);
+    //  ******************* Starting Coin Methods *****************
+     public static void AddinTotalCoin(int Coin)
+    {
+        PlayerPrefs.SetInt(COIN_TOTAL, getTotalCoin + Coin);
 
-    //}
-    public static int CurrentLevelReward
+    }
+public static void RemoveinTotalCoin(int Coin)
+{
+    PlayerPrefs.SetInt(COIN_TOTAL, getTotalCoin - Coin);
+
+}
+public static int getTotalCoin
+{
+    get
+    {
+        return PlayerPrefs.GetInt(COIN_TOTAL, 0);
+
+    }
+}
+
+public static int CurrentLevelReward
     {
         get
         {
@@ -238,15 +259,7 @@ public class playerprefz : MonoBehaviour
             PlayerPrefs.SetInt(CASH_LEVELREWARD, value);
         }
     }
-    //public static void setUnlockedMode(int i)
-    //{
-    //    PlayerPrefs.SetInt(LVL_Current, i);
-    //}
-
-    //public static int getUnlockedMode()
-    //{
-    //    return PlayerPrefs.GetInt(LVL_Current, 0);
-    //}
+  
     public static void AddinHealthkit(int value)
     {
         PlayerPrefs.SetInt(STR_Healthkit, GetHealthkit + value);

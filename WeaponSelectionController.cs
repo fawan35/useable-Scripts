@@ -78,6 +78,8 @@ public class WeaponSelectionController : MonoBehaviour
     public Button btn_CurrencyBuy;
     public Button btn_Equip;
     public Button btn_Hunt;
+
+    public UnityEngine.Events.UnityEvent OnIAPitemClick;
     #endregion
     #region Private Variables
 
@@ -92,7 +94,9 @@ public class WeaponSelectionController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        //playerprefz.GiftFirstWeaponsEachCategory();
         Initializations();
+       
     }
 
     // Update is called once per frame
@@ -126,6 +130,23 @@ public class WeaponSelectionController : MonoBehaviour
             });
         }
 
+        btn_CashBuy.onClick.AddListener(()=> {
+            PurchaseGunCash();
+        });
+        btn_CoinBuy.onClick.AddListener(() => {
+            PurchaseGunCoin();
+        });
+        btn_CurrencyBuy.onClick.AddListener(() => {
+            PurchaseGunIAP();
+        });
+        btn_Equip.onClick.AddListener(() => {
+            EquipOnclick();
+        });
+        btn_Hunt.onClick.AddListener(() => {
+
+            HuntOnclick();
+        });
+
         currentWeaponType = playerprefz.getCurrentWeaponCategory();
         currentitem = playerprefz.getCurrentGun();
         OnWeaponTypeClick((Weapontype)currentWeaponType);
@@ -134,29 +155,38 @@ public class WeaponSelectionController : MonoBehaviour
        
     }
 
-
+    public void onPanelOpen()
+    {
+        currentWeaponType = playerprefz.getCurrentWeaponCategory();
+        currentitem = playerprefz.getCurrentGun();
+        //print("CurrntItem :" + currentitem);
+        WeaponItemsUpdate();
+    }
     void WeaponItemsUpdate()
     {
         
         for (int i = 0; i < BTN_Weapons.Length; i++)
         {
-            if(playerprefz.getGunPurchased(i) == 1)
+            //BTN_Weapons[i].Item.transform.GetChild(3).gameObject.SetActive(false);
+
+            if (playerprefz.getGunPurchased(i) == 1)
             {
 
-                btn_CashBuy.gameObject.SetActive(false);
-                btn_CoinBuy.gameObject.SetActive(false);
-                btn_CurrencyBuy.gameObject.SetActive(false);
-                btn_Equip.gameObject.SetActive(true);
-                btn_Hunt.gameObject.SetActive(true);
+                //btn_CashBuy.gameObject.SetActive(false);
+                //btn_CoinBuy.gameObject.SetActive(false);
+                //btn_CurrencyBuy.gameObject.SetActive(false);
+                //btn_Equip.gameObject.SetActive(true);
+                //btn_Hunt.gameObject.SetActive(true);
                 
                 BTN_Weapons[i].Item.transform.GetChild(1).gameObject.SetActive(false);
                 
                 
                 if(playerprefz.getCurrentGun() == i)
                 {
-                    btn_Equip.interactable = false;
+                    //btn_Equip.interactable = false;
                     BTN_Weapons[i].Item.transform.GetChild(3).gameObject.SetActive(true);
                 }
+
             }
             else
             {
@@ -172,12 +202,53 @@ public class WeaponSelectionController : MonoBehaviour
             BTN_Weapons[i].Item.transform.GetChild(0).GetComponent<Image>().sprite = CurrentWeapon.Weapon[i].item;
 
         }
+
+
         //BTN_Weapons[i].Item.transform.GetChild(2).gameObject.SetActive(true);
         itemSpecsUpdate();
 
     }
+    void ResetAllSelection()
+    {
+        for (int i = 0; i < BTN_Weapons.Length; i++)
+        {
+            BTN_Weapons[i].Item.transform.GetChild(3).gameObject.SetActive(false);
+        }
+    }
     void itemSpecsUpdate()
     {
+        ResetAllSelection();
+
+        if (playerprefz.getGunPurchased(currentitem) == 1)
+        {
+            //playerprefz.setCurrentGun(currentitem);
+            btn_CashBuy.gameObject.SetActive(false);
+            btn_CoinBuy.gameObject.SetActive(false);
+            btn_CurrencyBuy.gameObject.SetActive(false);
+            btn_Equip.gameObject.SetActive(true);
+            btn_Hunt.gameObject.SetActive(true);
+            if (playerprefz.getCurrentGun() == currentitem)
+            {
+                btn_Equip.interactable = false;
+            }
+            else
+            {
+                btn_Equip.interactable = true;
+
+            }
+        }
+        else
+        {
+            BTN_Weapons[currentitem].Item.transform.GetChild(1).gameObject.SetActive(true);
+            BTN_Weapons[currentitem].Item.transform.GetChild(3).gameObject.SetActive(false);
+            btn_Equip.gameObject.SetActive(false);
+            btn_Hunt.gameObject.SetActive(false);
+            btn_CashBuy.gameObject.SetActive(true);
+            btn_CoinBuy.gameObject.SetActive(true);
+            btn_CurrencyBuy.gameObject.SetActive(true);
+
+        }
+
         bar_Power.fillBar.fillAmount = CurrentWeapon.Weapon[currentitem].power;
         bar_MaxZoom.fillBar.fillAmount = CurrentWeapon.Weapon[currentitem].maxzoom;
         bar_Stability.fillBar.fillAmount = CurrentWeapon.Weapon[currentitem].stability;
@@ -186,6 +257,7 @@ public class WeaponSelectionController : MonoBehaviour
         ClipSize.fillBar.fillAmount = CurrentWeapon.Weapon[currentitem].ClipSize;
         offAllModels();
         CurrentWeapon.Weapon[currentitem].Model.SetActive(true);
+        BTN_Weapons[playerprefz.getCurrentGun()].Item.transform.GetChild(3).gameObject.SetActive(true);
 
         btn_CashBuy.transform.GetChild(0).GetComponent<Text>().text = CurrentWeapon.Weapon[currentitem].Cash.ToString();
         btn_CoinBuy.transform.GetChild(0).GetComponent<Text>().text = CurrentWeapon.Weapon[currentitem].Coin.ToString();
@@ -210,8 +282,9 @@ public class WeaponSelectionController : MonoBehaviour
     void OnWeaponTypeClick(Weapontype weapontype)
     {
 
-        CurrentWeapon = WeaponSpecs[(int)weapontype];
         playerprefz.SetCurrentWeaponCategory((int)weapontype);
+        CurrentWeapon = WeaponSpecs[(int)weapontype];
+        currentitem = playerprefz.getCurrentGun();
         for (int i = 0; i < WeaponSpecs.Length; i++)
         {
             WeaponSpecs[i].BTN_TypeSelect.GetComponent<Image>().color = Color.white;
@@ -219,6 +292,51 @@ public class WeaponSelectionController : MonoBehaviour
         CurrentWeapon.BTN_TypeSelect.GetComponent<Image>().color = CurrentWeapon.ClickedColor;
 
         WeaponItemsUpdate();
+    }
+
+    void PurchaseGunCash()
+    {
+        if(playerprefz.getTotalCash >= CurrentWeapon.Weapon[currentitem].Cash)
+        {
+            playerprefz.RemoveinTotalCash(CurrentWeapon.Weapon[currentitem].Cash);
+            playerprefz.setGunPurchased(currentitem);
+            WeaponItemsUpdate();
+        GetComponent<MainMenuController>().UpdateCurrency();
+        }
+        else
+        {
+            print("not Enough Cash");
+        }
+    }
+
+    void PurchaseGunCoin()
+    {
+        if (playerprefz.getTotalCoin >= CurrentWeapon.Weapon[currentitem].Coin)
+        {
+            playerprefz.RemoveinTotalCoin(CurrentWeapon.Weapon[currentitem].Coin);
+            playerprefz.setGunPurchased(currentitem);
+            WeaponItemsUpdate();
+            GetComponent<MainMenuController>().UpdateCurrency();
+        }
+        else
+        {
+            print("not Enough Coin");
+        }
+    }
+    void PurchaseGunIAP()
+    {
+        GetComponent<MainMenuController>().UpdateCurrency();
+        OnIAPitemClick.Invoke();
+    }
+    void HuntOnclick()
+    {
+        GetComponent<MainMenuController>().GetScreen(Screens.ModeSelection);
+
+    }
+    void EquipOnclick()
+    {
+        playerprefz.setCurrentGun(currentitem);
+        itemSpecsUpdate();
     }
 
 
