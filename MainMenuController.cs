@@ -70,9 +70,22 @@ public class MainMenuController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        playerprefz.AddinTotalCash(10000);
+        playerprefz.AddinTotalCoin(10000);
         starting_Initializations();
+        UpdateCurrency();
     }
-
+    public void UpdateCurrency()
+    {
+        for (int i = 0; i < txt_Cash.Length; i++)
+        {
+            txt_Cash[i].text = playerprefz.getTotalCash.ToString();
+        }
+        for (int i = 0; i < txt_Gold.Length; i++)
+        {
+            txt_Gold[i].text = playerprefz.getTotalCoin.ToString();
+        }
+    }
     // Update is called once per frame
     void Update()
     {
@@ -174,8 +187,9 @@ public class MainMenuController : MonoBehaviour
             return;
         }
         OpenPanels.Pop().SetActive(false);
+        //OpenPanels.Peek().SetActive(true);
 
-        if(OpenPanels.Count == 1){
+        if (OpenPanels.Count >= 1){
             OpenPanels.Peek().SetActive(true);
 
         }
